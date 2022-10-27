@@ -2,12 +2,14 @@ version: '3.3'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
+    restart: always
     ports:
-    - "2181"
+      - "2181"
     hostname: zookeeper
   kafka:
     image: wurstmeister/kafka
     command: [start-kafka.sh]
+    restart: always
     ports:
       - "9092:9092"
     hostname: kafka
@@ -27,7 +29,7 @@ services:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_DATABASE: 'events'
+      MYSQL_DATABASE: 'example'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
@@ -36,8 +38,4 @@ services:
     expose:
       - '3306'
     volumes:
-      - my-db:/var/lib/mysql
-
-# Names our volume
-volumes:
-my-db:
+      - ./my-db:/var/lib/mysql
