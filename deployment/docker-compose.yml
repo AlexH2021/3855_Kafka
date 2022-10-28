@@ -44,7 +44,7 @@ services:
 
   audit:
     container_name: audit
-    build: ./audit/
+    build: ../audit/
     image: audit:latest
     ports:
       - "8110:8110"
@@ -54,7 +54,7 @@ services:
 
   processing:
     container_name: processing
-    build: ./processing/
+    build: ../processing/
     image: processing:latest
     network_mode: "host"
     ports:
@@ -65,17 +65,17 @@ services:
 
   receiver:
     container_name: receiver
-    build: ./receiver/
+    build: ../receiver/
     image: receiver:latest
     ports:
       - "8080:8080"
     volumes:
-      - ./receiver:/app
+      - ../receiver:/app
     restart: unless-stopped
     
   storage:
     container_name: storage
-    build: ./storage/
+    build: ../storage/
     image: storage:latest
     ports:
       - "8090:8090"
