@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: Audit API
+  contact:
+    email: honguttdc+swaggerhub@gmail.com
+paths:
+  /trade:
+    get:
+      summary: gets trade data reading from history
+      operationId: app.get_trade_reading
+      description: Get trade readings from event store
+      parameters:
+        - name: index
+          in: query
+          description: gets the trade at the index in the event store
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Successful return a trade event
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/TradeReading'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /account:
+    get:
+      summary: gets account data reading from history
+      operationId: app.get_account_reading
+      description: gets the account at the index in the event store
+      parameters:
+        - name: index
+          in: query
+          description: Gets the account at the index in the event store
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Successful return an account event
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/AccountReading'
+        '400':
+          description: Invalid request from STORAGE
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    AccountReading:
+      type: object
+      required:
+        - accountID
+        - holding
+        - cash
+        - value
+        - accountType
+        - currencyID
+        - createdAt
+        - updatedAt
+      properties:
+        accountID:
+          type: number
+          format: uuid
+        holding:
+          type: string
+          example: 'ticketA-20,ticketB-30'
+        cash:
+          type: number
+        value:
+          type: number
+        accountType:
+          type: string
+        currencyID:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TradeReading:
+      type: object
+      required:
+        - tradeID
+        - tradeType
+        - symbol
+        - shares
+        - price
+        - createdAt
+        - updatedAt
+        - accountID
+      properties:
+        tradeID:
+          type: number
+          format: uuid
+        tradeType:
+          type: string
+        symbol:
+          type: string
+        shares:
+          type: number
+        price:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        accountID:
+          type: number

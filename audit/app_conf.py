@@ -1,0 +1,13 @@
+datastore = {
+  "user": "user",
+  "password": "password",
+  "hostname": "kafka-3855.eastus.cloudapp.azure.com",
+  "port": 3306,
+  "db": "example"
+}
+
+events = {
+  "hostname": "kafka-3855.eastus.cloudapp.azure.com",
+  "port": 9092,
+  "topic": "events"
+}
