@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: Trading LTD
+  description: trading platform
+  contact:
+    email: honguttdc+swaggerhub@bcit.ca
+tags:
+  - name: admin
+    description: manage the platform
+  - name: customer
+    description: trading stock and manage portfolio
+paths:
+  /account:
+    post:
+      tags:
+        - customer
+      summary: account created
+      operationId: app.post_acc
+      responses:
+        '201':
+          description: portfolio(s)
+        '400':
+          description: 'invalid input'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+  /trade:
+    post:
+      tags:
+        - customer
+      summary: initiate a trade
+      operationId: app.post_trade
+      responses:
+        '201':
+          description: trade created
+        '400':
+          description: 'invalid input'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Trade'
+components:
+  schemas:
+    Account:
+      type: object
+      required:
+        - accountID
+        - holding
+        - cash
+        - value
+        - accountType
+        - currencyID
+        - createdAt
+        - updatedAt
+      properties:
+        accountID:
+          type: number
+          format: uuid
+        holding:
+          type: string
+          example: 'ticketA-20,ticketB-30'
+        cash:
+          type: number
+        value:
+          type: number
+        accountType:
+          type: string
+        currencyID:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Trade:
+      type: object
+      required:
+        - tradeID
+        - tradeType
+        - symbol
+        - shares
+        - price
+        - createdAt
+        - updatedAt
+        - accountID
+      properties:
+        tradeID:
+          type: number
+          format: uuid
+        tradeType:
+          type: string
+        symbol:
+          type: string
+        shares:
+          type: number
+        price:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        accountID:
+          type: number
