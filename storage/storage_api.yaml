@@ -11,38 +11,38 @@ tags:
   - name: customer
     description: trading stock and manage portfolio
 paths:
-  # /account:
-  #   post:
-  #     tags:
-  #       - customer
-  #     summary: account created
-  #     operationId: app.post_acc
-  #     responses:
-  #       '201':
-  #         description: portfolio(s)
-  #       '400':
-  #         description: 'invalid input'
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/Account'
-  # /trade:
-  #   post:
-  #     tags:
-  #       - customer
-  #     summary: initiate a trade
-  #     operationId: app.post_trade
-  #     responses:
-  #       '201':
-  #         description: trade created
-  #       '400':
-  #         description: 'invalid input'
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/Trade'
+  /account:
+    post:
+      tags:
+        - customer
+      summary: account created
+      operationId: app.post_acc
+      responses:
+        '201':
+          description: portfolio(s)
+        '400':
+          description: 'invalid input'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+  /trade:
+    post:
+      tags:
+        - customer
+      summary: initiate a trade
+      operationId: app.post_trade
+      responses:
+        '201':
+          description: trade created
+        '400':
+          description: 'invalid input'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Trade'
   /trade_stats:
     get:
       tags:
