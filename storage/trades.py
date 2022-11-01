@@ -8,25 +8,23 @@ class Trade(Base):
     __tablename__ = "trade"
     __table_args__ = {'mysql_engine':'InnoDB'}
 
-    tradeID = Column(Integer, primary_key=True, autoincrement=False)
+    tradeID = Column(Integer, primary_key=True)
     tradeType = Column(String(250))
     symbol = Column(String(250))
     shares = Column(Integer)
     price = Column(Integer)
-    createdAt = Column(DateTime, default=datetime.utcnow())
-    updatedAt = Column(DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
+    createdAt = Column(DateTime)
     accountID = Column(Integer)
     traceID = Column(String(250))
 
-    def __init__(self, tradeID, tradeType, symbol, shares, price, createdAt, updatedAt, accountID, traceID):
+    def __init__(self, tradeID, tradeType, symbol, shares, price, createdAt, accountID, traceID):
         """ Initializes a trading session """
         self.tradeID = tradeID
         self.tradeType = tradeType
         self.symbol = symbol
         self.shares = shares
         self.price = price
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
+        self.createdAt =  createdAt
         self.accountID = accountID
         self.traceID = traceID
 
@@ -38,8 +36,7 @@ class Trade(Base):
         dict['symbol'] = self.symbol
         dict['shares'] = self.shares
         dict['price'] = self.price
-        dict['createdAt'] = str(self.createdAt)
-        dict['updatedAt'] = str(self.updatedAt)
+        dict['createdAt'] = self.createdAt
         dict['accountID'] = self.accountID
         dict['traceID'] = self.traceID
 

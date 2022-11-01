@@ -8,7 +8,7 @@ metadata = MetaData(engine)
 connection = engine.connect()
 
 #drop table
-# engine.execute(f"DROP table IF EXISTS {}")
+metadata.drop_all()
 
 
 #insert or update => upsert

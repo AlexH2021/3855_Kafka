@@ -54,8 +54,6 @@ components:
         - value
         - accountType
         - currencyID
-        - createdAt
-        - updatedAt
       properties:
         accountID:
           type: number
@@ -74,9 +72,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     Trade:
       type: object
       required:
@@ -85,8 +80,6 @@ components:
         - symbol
         - shares
         - price
-        - createdAt
-        - updatedAt
         - accountID
       properties:
         tradeID:
@@ -101,9 +94,6 @@ components:
         price:
           type: number
         createdAt:
-          type: string
-          format: date-time
-        updatedAt:
           type: string
           format: date-time
         accountID:

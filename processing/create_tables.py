@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, MetaData
-from accounts_stats import Account_Stats
-from trade_stats import Trade_Stats
+from stats import Stats
 import yaml
 
 with open("app_conf.yml", "r") as f:
@@ -12,5 +11,4 @@ connection = engine.connect()
 metadata = MetaData(engine)
 
 
-Account_Stats.metadata.create_all(engine)
-Trade_Stats.metadata.create_all(engine)
+Stats.metadata.create_all(engine)

@@ -66,7 +66,7 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/TradeStats'
+                  $ref: '#/components/schemas/Trade'
         '400':
           description: Invalid request from STORAGE
           content:
@@ -99,7 +99,7 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/AccountStats'
+                  $ref: '#/components/schemas/Account'
         '400':
           description: Invalid request from STORAGE
           content:
@@ -121,7 +121,6 @@ components:
         - accountType
         - currencyID
         - createdAt
-        - updatedAt
       properties:
         accountID:
           type: number
@@ -140,9 +139,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     Trade:
       type: object
       required:
@@ -152,7 +148,6 @@ components:
         - shares
         - price
         - createdAt
-        - updatedAt
         - accountID
       properties:
         tradeID:
@@ -169,38 +164,5 @@ components:
         createdAt:
           type: string
           format: date-time
-        updatedAt:
-          type: string
-          format: date-time
         accountID:
           type: number
-    AccountStats:
-      required:
-        - num_account
-        - total_cash
-        - total_value
-      properties:
-        num_account:
-          type: integer
-          example: 5
-        total_cash:
-          type: number
-          example: 1000.5
-        total_value:
-          type: number
-          example: 2222.22
-    TradeStats:
-      required:
-        - num_trade
-        - total_share
-        - total_price
-      properties:
-        num_trade:
-          type: integer
-          example: 5
-        total_share:
-          type: number
-          example: 1000.5
-        total_price:
-          type: number
-          example: 22222.22

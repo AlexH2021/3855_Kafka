@@ -11,86 +11,13 @@ tags:
   - name: customer
     description: trading stock and manage portfolio
 paths:
-  /account:
-    post:
-      tags:
-        - customer
-      summary: account created
-      operationId: app.post_acc
-      responses:
-        '201':
-          description: portfolio(s)
-        '400':
-          description: 'invalid input'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Account'
-  /trade:
-    post:
-      tags:
-        - customer
-      summary: initiate a trade
-      operationId: app.post_trade
-      responses:
-        '201':
-          description: trade created
-        '400':
-          description: 'invalid input'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Trade'
-  /trade_stats:
-    get:
-      tags:
-        - devices
-      summary: gets trade data readings
-      operationId: app.get_trade_stats
-      description: Get trade data from STORAGE after a timestamp
-      parameters:
-        - name: timestamp
-          in: query
-          description: Limits the number of items on a page
-          schema:
-            type: string
-            format: date-time
-            example: '2022-10-2T14:22:22.001Z'
-      responses:
-        '200':
-          description: Successful return list of trade data from STORAGE
-          content:
-            application/json:
-              schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/TradeStats'
-        '400':
-          description: Invalid request from STORAGE
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-  /acc_stats:
+  /stats:
     get:
       tags:
         - devices
       summary: gets account data readings
       operationId: app.get_acc_stats
       description: Get account data from STORAGE after a timestamp
-      parameters:
-        - name: timestamp
-          in: query
-          description: Limits the number of items on a page
-          schema:
-            type: string
-            format: date-time
-            example: '2022-10-2T14:22:22.001Z'
       responses:
         '200':
           description: Successful return list of account data from STORAGE
@@ -99,7 +26,7 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/AccountStats'
+                  $ref: '#/components/schemas/Stats'
         '400':
           description: Invalid request from STORAGE
           content:
@@ -111,96 +38,26 @@ paths:
                     type: string
 components:
   schemas:
-    Account:
-      type: object
-      required:
-        - accountID
-        - holding
-        - cash
-        - value
-        - accountType
-        - currencyID
-        - createdAt
-        - updatedAt
-      properties:
-        accountID:
-          type: number
-          format: uuid
-        holding:
-          type: string
-          example: 'ticketA-20,ticketB-30'
-        cash:
-          type: number
-        value:
-          type: number
-        accountType:
-          type: string
-        currencyID:
-          type: integer
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    Trade:
-      type: object
-      required:
-        - tradeID
-        - tradeType
-        - symbol
-        - shares
-        - price
-        - createdAt
-        - updatedAt
-        - accountID
-      properties:
-        tradeID:
-          type: number
-          format: uuid
-        tradeType:
-          type: string
-        symbol:
-          type: string
-        shares:
-          type: number
-        price:
-          type: number
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        accountID:
-          type: number
-    AccountStats:
+    Stats:
       required:
         - num_account
+        - num_trade
         - total_cash
         - total_value
+        - total_share
       properties:
         num_account:
           type: integer
           example: 5
-        total_cash:
-          type: number
-          example: 1000.5
-        total_value:
-          type: number
-          example: 2222.22
-    TradeStats:
-      required:
-        - num_trade
-        - total_share
-        - total_price
-      properties:
         num_trade:
           type: integer
           example: 5
-        total_share:
+        total_cash:
+          type: integer
+          example: 5
+        total_value:
           type: number
           example: 1000.5
-        total_price:
+        total_share:
           type: number
-          example: 22222.22
+          example: 2222.22

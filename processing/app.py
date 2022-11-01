@@ -1,14 +1,14 @@
 from datetime import datetime
 import json
 from time import strptime
+import uuid
 import connexion, logging.config, yaml, requests
 from sqlalchemy import create_engine
 from apscheduler.schedulers.background import BackgroundScheduler
 from base import Base
 from sqlalchemy.orm import sessionmaker
 
-from accounts_stats import Account_Stats
-from trade_stats import Trade_Stats
+from stats import Stats
 
 with open('app_conf.yml', 'r') as f:
   app_config = yaml.safe_load(f.read())
@@ -27,109 +27,42 @@ with open('log_conf.yml', 'r') as f:
 
 logger = logging.getLogger('basicLogger')
 
-def post_acc():
-  pass
-
-def post_trade():
-  pass
-
-def get_trade_stats():
-  pass
-
-def get_acc_stats():
-  pass
 
 def sent_acc_get_request():
   url = ACC_STATS_URL + '?timestamp=' + str(datetime.now().replace(microsecond=0))
   response = requests.get(url)
 
-  return response.status_code, response.json()['content']
+  return response.status_code, response.json()
 
 def sent_trade_get_request():
   url = TRADE_STATS_URL + '?timestamp=' + str(datetime.now().replace(microsecond=0))
   # url = TRADE_STATS_URL + '?timestamp=' + str("2012-10-10 12:12:12")
   response = requests.get(url)
   
-  return response.status_code, response.json()['content']
+  return response.status_code, response.json()
 
-def calculate_acc_stats_data():
-  status_code, data = sent_acc_get_request()
+def cal_stats():
+  status1, acc_data = sent_acc_get_request()
+  status2, trade_data = sent_trade_get_request()
+  traceID = uuid.uuid4()
 
-  store_data = {}
   processed_data = {}
 
-  for rows in data:
-    for i in rows:
-      if i not in store_data:
-        store_data[i] = [rows[i]]
-      else:
-        store_data[i].append(rows[i])
-      
-  if store_data:
-    processed_data = {
-      'total_acc_num': len(store_data['accountID']),
-      'total_cash': sum(store_data['cash']),
-      'total_value': sum(store_data['value']),
-      'traceID': store_data['traceID']
-    }
+  print(acc_data, trade_data)
 
-  return status_code, processed_data
+  return processed_data
 
-def calculate_trade_stats_data():
-  status_code, data = sent_trade_get_request()
-
-  store_data = {}
-  processed_data = {}
-
-  for rows in data:
-    for i in rows:
-      if i not in store_data:
-        store_data[i] = [rows[i]]
-      else:
-        store_data[i].append(rows[i])
-  
-  if store_data:
-    processed_data = {
-      'total_trade_num': len(store_data['tradeID']),
-      'total_share': sum(store_data['shares']),
-      'total_price': sum(store_data['price']),
-      'traceID': store_data['traceID']
-    }
-  
-  # print(data)
-  # print("-------------------------------------")
-  # print(store_data)
-  # print("-------------------------------------")
-  # print(processed_data)
-
-  return status_code, processed_data
-
-def save_acc_stats_data(body):
-  session = DB_SESSION()
-  session.expire_on_commit = False
-
-  data = Account_Stats(
-    body['total_acc_num'], 
-    body['total_cash'],
-    body['total_value'],
-    str(body['traceID'])
-  )
-
-  id = session.add(data)
-  session.commit()
-  session.close()
-
-  return id
-
-def save_trade_stats_data(body):
+def stats(body):
   session = DB_SESSION()
   session.expire_on_commit = False
 
   data = Trade_Stats(
-    body['total_trade_num'], 
+    body['num_account'],
+    body['num_trade'],
+    body['total_cash'], 
+    body['total_value'],
     body['total_share'],
-    body['total_price'],
-    str(body['traceID'])
+    body['traceID']
   )
 
   id = session.add(data)
@@ -180,10 +113,6 @@ app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True
 
 
 if __name__ == "__main__":
-  init_scheduler()
-  app.run(port=8100, use_reloader=False)
-  # code, test = calculate_trade_stats_data()
-  # print(code, test)
-  # a = save_trade_stats_data(test)
-  # print(a)
-  # sent_acc_get_request()
+  # init_scheduler()
+  # app.run(port=8100, use_reloader=False)
+  cal_stats()

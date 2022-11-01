@@ -22,51 +22,17 @@ Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 logger.info(f"Connecting to DB. Hostname: {cfg.datastore['hostname']}, Port: {cfg.datastore['port']}")
 
-def save_to_mysql(body):
-    session = DB_SESSION()
-    
-    data = {}
-
-    if "accountType" in body:
-        data = Account(
-            body['accountID'],
-            body['holding'],
-            body['cash'],
-            body['value'],
-            body['accountType'],
-            body['currencyID'],
-            body['createdAt'],
-            body['updatedAt'],
-            body['traceID']
-        )
-    elif "tradeType" in body:
-        data = Trade(
-            body['tradeID'], 
-            body['tradeType'],
-            body['symbol'],
-            body['shares'],
-            body['price'],
-            body['createdAt'],
-            body['updatedAt'],
-            body['accountID'],
-            body['traceID']
-      )
-
-    session.add(data)
-    session.commit()
-    session.close()
-
 def post_acc(body):
     session = DB_SESSION()
 
-    acc = Account(body['accountID'],
+    acc = Account(
+        body['accountID'],
         body['holding'],
         body['cash'],
         body['value'],
         body['accountType'],
         body['currencyID'],
         body['createdAt'],
-        body['updatedAt'],
         body['traceID']
     )
 
@@ -88,7 +54,6 @@ def post_trade(body):
         body['shares'],
         body['price'],
         body['createdAt'],
-        body['updatedAt'],
         body['accountID'],
         body['traceID']
     )
@@ -156,10 +121,10 @@ def process_messages():
         payload = msg["payload"]
         
         if msg["type"] == "requests_post_acc": # Change this to your event type
-            save_to_mysql(payload)
+            post_acc(payload)
         elif msg["type"] == "requests_post_trade": # Change this to your event type
             # Store the event2 (i.e., the payload) to the DB
-            save_to_mysql(payload)
+            post_trade(payload)
         
         # Commit the new message as being read
         consumer.commit_offsets()
@@ -171,4 +136,4 @@ if __name__ == "__main__":
     t1 = Thread(target=process_messages)
     t1.setDaemon(True)
     t1.start()
-    app.run(port=8090)
+    app.run(port=8090, debug=True)
