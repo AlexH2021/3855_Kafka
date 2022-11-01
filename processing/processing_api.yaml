@@ -16,7 +16,7 @@ paths:
       tags:
         - devices
       summary: gets account data readings
-      operationId: app.get_acc_stats
+      operationId: app.get_stats
       description: Get account data from STORAGE after a timestamp
       responses:
         '200':
@@ -51,13 +51,13 @@ components:
           example: 5
         num_trade:
           type: integer
-          example: 5
+          example: 50
         total_cash:
           type: integer
-          example: 5
+          example: 55
         total_value:
-          type: number
-          example: 1000.5
+          type: integer
+          example: 1000
         total_share:
-          type: number
-          example: 2222.22
+          type: integer
+          example: 2222

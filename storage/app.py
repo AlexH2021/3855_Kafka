@@ -40,7 +40,7 @@ def post_acc(body):
     session.commit()
     session.close()
 
-    logger.info(f"Stored event added Account data request with a trace id of {acc.traceID}")
+    logger.info(f"Stored event added Account data request with a trace id of {acc['traceID']}")
 
     return body
 

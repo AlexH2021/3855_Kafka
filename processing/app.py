@@ -1,6 +1,5 @@
-from datetime import datetime
-import json
-from time import strptime
+from datetime import datetime, timedelta
+from re import T
 import uuid
 import connexion, logging.config, yaml, requests
 from sqlalchemy import create_engine
@@ -27,42 +26,95 @@ with open('log_conf.yml', 'r') as f:
 
 logger = logging.getLogger('basicLogger')
 
+def get_stats():
+    session = DB_SESSION()
+    results = session.query(Stats).order_by(Stats.last_updated.desc())
+    session.close()
+
+    return results
 
 def sent_acc_get_request():
-  url = ACC_STATS_URL + '?timestamp=' + str(datetime.now().replace(microsecond=0))
-  response = requests.get(url)
-
-  return response.status_code, response.json()
-
-def sent_trade_get_request():
-  url = TRADE_STATS_URL + '?timestamp=' + str(datetime.now().replace(microsecond=0))
-  # url = TRADE_STATS_URL + '?timestamp=' + str("2012-10-10 12:12:12")
+  url = ACC_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
+  # url = ACC_STATS_URL + "?timestamp=2012-10-10 12:12:12"
   response = requests.get(url)
   
-  return response.status_code, response.json()
+  if response.status_code == 204:
+    return 204, {}
+  elif response.status_code == 400:
+    return 400, {}
+
+  return response.status_code, response.json()['content']
+
+def sent_trade_get_request():
+  url = TRADE_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
+  # url = TRADE_STATS_URL + "?timestamp=2012-10-10 12:12:12"
+
+  response = requests.get(url) 
+  
+  if response.status_code == 204:
+    return 204, {}
+  elif response.status_code == 400:
+    return 400, {}
+  
+  return response.status_code, response.json()['content']
 
 def cal_stats():
   status1, acc_data = sent_acc_get_request()
   status2, trade_data = sent_trade_get_request()
-  traceID = uuid.uuid4()
+  traceID = str(uuid.uuid4())
 
-  processed_data = {}
 
-  print(acc_data, trade_data)
+  processed_data = {
+    "num_account": 0,
+    "num_trade": 0,
+    "total_cash": 0,
+    "total_value": 0,
+    "total_share": 0
+  }
+
+  merge_data = acc_data + trade_data
+
+  if merge_data:
+    for row in merge_data:
+      for key in row:
+        if key == "accountID":
+          processed_data['num_account'] += 1
+        elif key == "tradeID":
+          processed_data['num_trade'] += 1
+        elif key == "cash":
+          processed_data['total_cash'] += row[key]
+        elif key == "value":
+          processed_data['total_value'] += row[key]
+        elif key == "shares":
+          processed_data['total_share'] += row[key]
+
+    logger.info('Number of account events received %d at %s', len(acc_data), str(datetime.now().replace(microsecond=0)))
+    if status1 != 200:
+        logger.error('Error retrieving account stats: %d', acc_data)
+    elif status1 == 204:
+        logger.error('No account stats available')
+    
+    logger.info('Number of trade events received: %d at %s', len(trade_data), str(datetime.now().replace(microsecond=0)))
+    if status2 != 200:
+        logger.error('Error retrieving trade stats: %d', trade_data)
+    elif status2 == 204:
+        logger.error('No trade stats available')
+
+    #log debug
+    logger.debug('TraceID for account and trade stats: %s',traceID)
 
   return processed_data
 
-def stats(body):
+def save_to_sqlite(body):
   session = DB_SESSION()
   session.expire_on_commit = False
 
-  data = Trade_Stats(
+  data = Stats(
     body['num_account'],
     body['num_trade'],
     body['total_cash'], 
     body['total_value'],
     body['total_share'],
-    body['traceID']
   )
 
   id = session.add(data)
@@ -75,31 +127,14 @@ def populate_stats():
   ### this function will keep running base on the schedule
   logger.info("Start Periodic Processing")
 
-  _, acc_data_with_traceID = sent_acc_get_request()
-  _, trade_data_with_traceID = sent_trade_get_request()
-
-  status_code, calculated_data = calculate_acc_stats_data()
-  status_code2, calculated_data2 = calculate_trade_stats_data()
+  calculated_data = cal_stats()
 
   if calculated_data:
-    if status_code == 200:
-      ## account data
-      logger.info("Query for Account readings after %s returns %d results" % (datetime.now().replace(microsecond=0), len(calculated_data)))
-      logger.debug(f'INFO: Account event with traceID: {acc_data_with_traceID}')
-      save_acc_stats_data(calculated_data)
-      logger.debug(f'INFO: Account stats: {calculated_data}')
-    else:
-      logger.error('Failed! query for Account readings after %s' % (datetime.now().replace(microsecond=0)))
-
-  if calculated_data2:
-    if status_code2 == 200:
-      ## trade data
-      logger.info("Query for Trade readings after %s returns %d results" % (datetime.now().replace(microsecond=0), len(calculated_data2)))
-      logger.debug(f'INFO: Account event with traceID: {trade_data_with_traceID}')
-      save_trade_stats_data(calculated_data2)
-      logger.debug(f'INFO: Trade stats: {calculated_data2}')
-    else:
-      logger.error('Failed! query for Trade readings after %s' % (datetime.now().replace(microsecond=0)))
+    save_to_sqlite(calculated_data)
+    print(len(calculated_data))
+  else:
+    print("No data")
+    logger.info("INFO: No data to insert to database")
   
   logger.info(f'INFO: finish populating stats')
     
@@ -113,6 +148,5 @@ app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True
 
 
 if __name__ == "__main__":
-  # init_scheduler()
-  # app.run(port=8100, use_reloader=False)
-  cal_stats()
+  init_scheduler()
+  app.run(port=8100, use_reloader=False, debug=True)

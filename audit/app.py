@@ -20,8 +20,8 @@ def get_account_reading(index):
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)
-      # if msg["accountID"] == index:
-      return msg, 200
+      if msg['type'] == 'requests_post_acc':
+        return msg, 200
   except:
     logger.error("No more messages found")
 
@@ -40,8 +40,8 @@ def get_trade_reading(index):
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)
-      # if msg["accountID"] == index:
-      return msg, 200
+      if msg['type'] == 'requests_post_trade':
+        return msg, 200
   except:
     logger.error("No more messages found")
 
