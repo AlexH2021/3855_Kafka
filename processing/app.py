@@ -39,22 +39,25 @@ def sent_acc_get_request():
   response = requests.get(url)
   
   if response.status_code == 204:
-    return 204, {}
+    return 204, []
   elif response.status_code == 400:
-    return 400, {}
+    return 400, []
+  elif response.status_code == 500: 
+    return 500, []
 
   return response.status_code, response.json()['content']
 
 def sent_trade_get_request():
   url = TRADE_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
   # url = TRADE_STATS_URL + "?timestamp=2012-10-10 12:12:12"
-
   response = requests.get(url) 
   
   if response.status_code == 204:
-    return 204, {}
+    return 204, []
   elif response.status_code == 400:
-    return 400, {}
+    return 400, []
+  elif response.status_code == 500: 
+    return 500, []
   
   return response.status_code, response.json()['content']
 
@@ -63,7 +66,6 @@ def cal_stats():
   status2, trade_data = sent_trade_get_request()
   traceID = str(uuid.uuid4())
 
-
   processed_data = {
     "num_account": 0,
     "num_trade": 0,
@@ -71,6 +73,7 @@ def cal_stats():
     "total_value": 0,
     "total_share": 0
   }
+  have_data = False
 
   merge_data = acc_data + trade_data
 
@@ -102,8 +105,9 @@ def cal_stats():
 
     #log debug
     logger.debug('TraceID for account and trade stats: %s',traceID)
+    have_data = True
 
-  return processed_data
+  return processed_data, have_data
 
 def save_to_sqlite(body):
   session = DB_SESSION()
@@ -127,13 +131,11 @@ def populate_stats():
   ### this function will keep running base on the schedule
   logger.info("Start Periodic Processing")
 
-  calculated_data = cal_stats()
-
-  if calculated_data:
+  calculated_data, have_data = cal_stats()
+  if have_data == True:
     save_to_sqlite(calculated_data)
     print(len(calculated_data))
   else:
-    print("No data")
     logger.info("INFO: No data to insert to database")
   
   logger.info(f'INFO: finish populating stats')

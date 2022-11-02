@@ -1,6 +1,5 @@
 from datetime import datetime
-import logging.config, connexion, requests, yaml, uuid, json
-from sqlalchemy import true
+import logging.config, connexion, yaml, uuid, json
 import app_conf as cfg
 from pykafka import KafkaClient
 

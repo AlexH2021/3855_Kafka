@@ -8,6 +8,7 @@ from trades import Trade
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
+from pykafka.exceptions import SocketDisconnectedError, LeaderNotAvailable
 
 # read log config yml
 with open('log_conf.yml', 'r') as f:
@@ -35,14 +36,11 @@ def post_acc(body):
         body['createdAt'],
         body['traceID']
     )
+    logger.info(f"Stored event added Account data request with a trace id of {acc.traceID}")
 
     session.add(acc)
     session.commit()
     session.close()
-
-    logger.info(f"Stored event added Account data request with a trace id of {acc['traceID']}")
-
-    return body
 
 def post_trade(body):
     session = DB_SESSION()
@@ -57,12 +55,11 @@ def post_trade(body):
         body['accountID'],
         body['traceID']
     )
+    logger.info(f"Stored event added Trade data request with a trace id of {trade.traceID}")
 
     session.add(trade)
     session.commit()
     session.close()
-
-    return body
 
 def get_acc_stats(timestamp):
     session = DB_SESSION()
@@ -111,24 +108,28 @@ def process_messages():
     hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
     client = KafkaClient(hosts=hostname)
     topic = client.topics[str.encode(cfg.events["topic"])]
-
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
-
-    for msg in consumer:
-        msg_str = msg.value.decode('utf-8')
-        msg = json.loads(msg_str)
-        logger.info("Message: %s" % msg)
-        payload = msg["payload"]
-        
-        if msg["type"] == "requests_post_acc": # Change this to your event type
-            post_acc(payload)
-        elif msg["type"] == "requests_post_trade": # Change this to your event type
-            # Store the event2 (i.e., the payload) to the DB
-            post_trade(payload)
-        
-        # Commit the new message as being read
-        consumer.commit_offsets()
     
+    consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
+    
+    try:
+        consumer.consume()
+    except (SocketDisconnectedError) as e:
+        consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
+        
+    for msg in consumer:
+      msg_str = msg.value.decode('utf-8')
+      msg = json.loads(msg_str)
+      logger.info("Message: %s" % msg)
+      payload = msg["payload"]
+
+      if msg["type"] == "requests_post_acc": # Change this to your event type
+        post_acc(payload)
+      elif msg["type"] == "requests_post_trade": # Change this to your event type
+        post_trade(payload)
+      
+      # Commit the new message as being read
+      consumer.commit_offsets()
+
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('storage_api.yaml',strict_validation=True,validate_responses=True)
 

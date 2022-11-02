@@ -2,7 +2,7 @@ version: 1
 datastore:
   filename: stats.sqlite
 scheduler:
-  period_sec: 5
+  period_sec: 10
 eventstore:
   acc_stats_url: http://127.0.0.1:8090/acc_stats
   trade_stats_url: http://127.0.0.1:8090/trade_stats
