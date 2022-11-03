@@ -110,12 +110,14 @@ def process_messages():
     topic = client.topics[str.encode(cfg.events["topic"])]
     
     consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
-    
     try:
-        consumer.consume()
+      consumer.consume()
     except (SocketDisconnectedError) as e:
-        consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
-        
+      consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
+      # use either the above method or the following:
+      consumer.stop()
+      consumer.start()
+
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)

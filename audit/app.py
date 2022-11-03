@@ -20,6 +20,7 @@ def get_account_reading(index):
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)
+      print(msg)
       if msg['type'] == 'requests_post_acc':
         return msg, 200
   except:
@@ -53,4 +54,4 @@ app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('audit_api.yaml',strict_validation=True,validate_responses=True)
 
 if __name__ == "__main__":
-    app.run(port=8110)
+    app.run(port=8110,debug=True)
