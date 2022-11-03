@@ -49,6 +49,8 @@ services:
     ports:
       - "8110:8110"
     restart: unless-stopped
+    depends_on:
+      - storage
 
   processing:
     container_name: processing
@@ -58,6 +60,8 @@ services:
     ports:
       - "8100:8100"
     restart: unless-stopped
+    depends_on:
+      - storage
 
   receiver:
     container_name: receiver
@@ -74,3 +78,5 @@ services:
     ports:
       - "8090:8090"
     restart: unless-stopped
+    depends_on:
+      - kafka
