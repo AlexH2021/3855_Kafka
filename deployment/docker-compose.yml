@@ -50,7 +50,7 @@ services:
       - "8110:8110"
     restart: unless-stopped
     depends_on:
-      - storage
+      - kafka
 
   processing:
     container_name: processing
@@ -70,6 +70,8 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    depends_on:
+      - kafka
     
   storage:
     container_name: storage
