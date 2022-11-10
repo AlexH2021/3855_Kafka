@@ -71,7 +71,8 @@ def cal_stats():
     "num_trade": 0,
     "total_cash": 0,
     "total_value": 0,
-    "total_share": 0
+    "total_share": 0,
+    "created_at": str(datetime.now().replace(microsecond=0))
   }
   have_data = False
 
@@ -119,6 +120,7 @@ def save_to_sqlite(body):
     body['total_cash'], 
     body['total_value'],
     body['total_share'],
+    body['created_at'],
   )
 
   id = session.add(data)
