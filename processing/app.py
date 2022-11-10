@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from apscheduler.schedulers.background import BackgroundScheduler
 from base import Base
 from sqlalchemy.orm import sessionmaker
+from flask_cors import CORS, cross_origin
 
 from stats import Stats
 
@@ -149,7 +150,8 @@ def init_scheduler():
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True)
-
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 if __name__ == "__main__":
   init_scheduler()

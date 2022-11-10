@@ -1,5 +1,6 @@
 import connexion, yaml, logging.config, app_conf as cfg, json
 from pykafka import KafkaClient
+from flask_cors import CORS, cross_origin
 
 # read log config yml
 with open('log_conf.yml', 'r') as f:
@@ -59,6 +60,8 @@ def get_trade_reading(index):
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('audit_api.yaml',strict_validation=True,validate_responses=True)
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 if __name__ == "__main__":
     app.run(port=8110,debug=True)
