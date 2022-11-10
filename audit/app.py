@@ -15,14 +15,17 @@ def get_account_reading(index):
   topic = client.topics[str.encode(cfg.events["topic"])]
   consumer = topic.get_simple_consumer(reset_offset_on_start=True, consumer_timeout_ms=1000)
   logger.info("Retrieving Account at index %d" % index)
-
+  
+  start = 1
+  result = {}
   try:
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)
-      print(msg)
       if msg['type'] == 'requests_post_acc':
-        return msg, 200
+        result[start] = msg
+        start += 1
+    return result[index], 200
   except:
     logger.error("No more messages found")
 
@@ -37,12 +40,16 @@ def get_trade_reading(index):
   consumer = topic.get_simple_consumer(reset_offset_on_start=True, consumer_timeout_ms=1000)
   logger.info("Retrieving Trade at index %d" % index)
 
+  start = 1
+  result = {}
   try:
     for msg in consumer:
       msg_str = msg.value.decode('utf-8')
       msg = json.loads(msg_str)
       if msg['type'] == 'requests_post_trade':
-        return msg, 200
+        result[start] = msg
+        start += 1
+    return result[index], 200
   except:
     logger.error("No more messages found")
 
