@@ -6,6 +6,9 @@ services:
     ports:
       - "2181"
     hostname: zookeeper
+    volumes: 
+      - ./zoo/data:/var/lib/zookeeper/data
+      - ./zoo/log:/var/lib/zookeeper/log
   
   kafka:
     image: wurstmeister/kafka
@@ -24,6 +27,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./broker/data:/var/lib/kafka/data
     depends_on:
       - "zookeeper"
   
@@ -82,3 +86,14 @@ services:
     restart: unless-stopped
     depends_on:
       - kafka
+
+  dashboard:
+    container_name: dashboard
+    build: ../dashboard-ui
+    image: dashboard:latest
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - audit
+      - processing
