@@ -1,8 +1,12 @@
-FROM bayesimpact/react-base:main
+FROM node:13.12.0-alpine
+
+ENV PATH /app/node_modules/.bin:$PATH
 
 # We copy just the requirements.txt first to leverage Docker cache
 WORKDIR /app
 
 COPY . .
 RUN npm install
+RUN npm install react-scripts@3.4.1 -g
+
 ENTRYPOINT [ "npm start" ]
