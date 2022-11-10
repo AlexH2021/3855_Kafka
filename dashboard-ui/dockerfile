@@ -1,0 +1,8 @@
+FROM bayesimpact/react-base:main
+
+# We copy just the requirements.txt first to leverage Docker cache
+WORKDIR /app
+
+COPY . .
+RUN npm install
+ENTRYPOINT [ "npm start" ]
