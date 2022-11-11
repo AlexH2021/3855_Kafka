@@ -72,12 +72,12 @@ def cal_stats():
     "num_trade": 0,
     "total_cash": 0,
     "total_value": 0,
-    "total_share": 0,
-    "created_at": str(datetime.now().replace(microsecond=0))
+    "total_share": 0
   }
   have_data = False
 
   merge_data = acc_data + trade_data
+  print(merge_data)
 
   if merge_data:
     for row in merge_data:
@@ -92,6 +92,7 @@ def cal_stats():
           processed_data['total_value'] += row[key]
         elif key == "shares":
           processed_data['total_share'] += row[key]
+    have_data = True
 
     logger.info('Number of account events received %d at %s', len(acc_data), str(datetime.now().replace(microsecond=0)))
     if status1 != 200:
@@ -107,13 +108,12 @@ def cal_stats():
 
     #log debug
     logger.debug('TraceID for account and trade stats: %s',traceID)
-    have_data = True
 
   return processed_data, have_data
 
 def save_to_sqlite(body):
   session = DB_SESSION()
-  session.expire_on_commit = False
+  body["created_at"] = datetime.strptime(str(datetime.now().replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')
 
   data = Stats(
     body['num_account'],
@@ -135,11 +135,13 @@ def populate_stats():
   logger.info("Start Periodic Processing")
 
   calculated_data, have_data = cal_stats()
-  if have_data == True:
-    save_to_sqlite(calculated_data)
-    print(len(calculated_data))
-  else:
-    logger.info("INFO: No data to insert to database")
+  save_to_sqlite(calculated_data)
+  print(calculated_data)
+  
+  # if have_data == True:
+  #   save_to_sqlite(calculated_data)
+  # else:
+  #   logger.info("INFO: No data to insert to database")
   
   logger.info(f'INFO: finish populating stats')
     
@@ -155,4 +157,4 @@ app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 if __name__ == "__main__":
   init_scheduler()
-  app.run(port=8100, use_reloader=False, debug=True)
+  app.run(port=8100, use_reloader=False)
