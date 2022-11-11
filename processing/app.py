@@ -29,7 +29,8 @@ logger = logging.getLogger('basicLogger')
 
 def get_stats():
     session = DB_SESSION()
-    results = session.query(Stats).order_by(Stats.created_at.desc())
+    results = session.query(Stats)
+    print(results)
     session.close()
 
     return results
