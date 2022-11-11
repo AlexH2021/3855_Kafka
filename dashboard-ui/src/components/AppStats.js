@@ -5,7 +5,6 @@ export default function AppStats() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [stats, setStats] = useState({});
     const [error, setError] = useState(null)
-    const current_time = new Date()
 
 	const getStats = () => {
 	
