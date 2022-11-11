@@ -22,3 +22,6 @@ class Stats(Base):
         self.total_value = total_value
         self.total_share = total_share
         self.created_at = created_at
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}

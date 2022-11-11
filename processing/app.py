@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
-from re import T
-import uuid
-import connexion, logging.config, yaml, requests
+import connexion, logging.config, yaml, requests, json, uuid
 from sqlalchemy import create_engine
 from apscheduler.schedulers.background import BackgroundScheduler
 from base import Base
@@ -29,21 +27,19 @@ logger = logging.getLogger('basicLogger')
 
 def get_stats():
     session = DB_SESSION()
-    data = session.query(Stats)
+    readings = session.query(Stats).order_by(Stats.created_at.desc()).all()
     
-    results = {}
-    for row in data:
-      results["num_account"] = row[0]
-      results["num_trade"] = row[1]
-      results["total_cash"] = row[2]
-      results["total_value"] = row[3]
-      results["total_share"] = row[4]
-      results["created_at"] = row[5]
-      print(row)
+    result_list = [reading.as_dict() for reading in readings]
 
     session.close()
 
-    return results
+    success_message = {
+        'message': 'account stats',
+        'status': 200,
+        'content': result_list
+    }
+
+    return success_message
 
 def sent_acc_get_request():
   url = ACC_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
@@ -88,7 +84,6 @@ def cal_stats():
   have_data = False
 
   merge_data = acc_data + trade_data
-  print(merge_data)
 
   if merge_data:
     for row in merge_data:
@@ -146,13 +141,11 @@ def populate_stats():
   logger.info("Start Periodic Processing")
 
   calculated_data, have_data = cal_stats()
-  save_to_sqlite(calculated_data)
-  print(calculated_data)
   
-  # if have_data == True:
-  #   save_to_sqlite(calculated_data)
-  # else:
-  #   logger.info("INFO: No data to insert to database")
+  if have_data == True:
+    save_to_sqlite(calculated_data)
+  else:
+    logger.info("INFO: No data to insert to database")
   
   logger.info(f'INFO: finish populating stats')
     
@@ -167,5 +160,5 @@ CORS(app.app)
 app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 if __name__ == "__main__":
-  init_scheduler()
+  # init_scheduler()
   app.run(port=8100, use_reloader=False)
