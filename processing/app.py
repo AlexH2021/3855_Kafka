@@ -39,7 +39,7 @@ def get_stats():
         'content': result_list
     }
 
-    return success_message.content()
+    return success_message
 
 def sent_acc_get_request():
   url = ACC_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
