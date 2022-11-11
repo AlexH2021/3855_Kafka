@@ -29,8 +29,18 @@ logger = logging.getLogger('basicLogger')
 
 def get_stats():
     session = DB_SESSION()
-    results = session.query(Stats)
-    print(results)
+    data = session.query(Stats)
+    
+    results = {}
+    for row in data:
+      results["num_account"] = row[0]
+      results["num_trade"] = row[1]
+      results["total_cash"] = row[2]
+      results["total_value"] = row[3]
+      results["total_share"] = row[4]
+      results["created_at"] = row[5]
+      print(row)
+
     session.close()
 
     return results
