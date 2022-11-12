@@ -1,6 +1,6 @@
 from datetime import datetime
 import connexion, app_conf as cfg, logging.config, yaml, json
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from base import Base
 from accounts import Account
@@ -61,18 +61,19 @@ def post_trade(body):
     session.commit()
     session.close()
 
-def get_acc_stats(timestamp):
+def get_acc_stats(start_timestamp, end_timestamp):
     session = DB_SESSION()
 
-    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    
-    readings = session.query(Account).filter(Account.createdAt >= timestamp_datetime)
+    start_timestamp_datetime = datetime.strptime(start_timestamp, "%Y-%m-%d %H:%M:%S")
+    end_timestamp_datetime = datetime.strptime(end_timestamp, "%Y-%m-%d %H:%M:%S")
+
+    readings = session.query(Account).filter(and_(Account.createdAt >= start_timestamp_datetime, Account.createdAt < end_timestamp_datetime))
 
     result_list = [reading.to_dict() for reading in readings]
 
     session.close()
 
-    logger.info("Query for Account readings after %s returns %d results" % (timestamp, len(result_list)))
+    logger.info("Query for Account readings after %s returns %d results" % (start_timestamp, len(result_list)))
 
     success_message = {
         'message': 'account stats',
@@ -82,19 +83,20 @@ def get_acc_stats(timestamp):
 
     return success_message
 
-def get_trade_stats(timestamp):
+def get_trade_stats(start_timestamp, end_timestamp):
     session = DB_SESSION()
     session.expire_on_commit = False
 
-    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+    start_timestamp_datetime = datetime.strptime(start_timestamp, "%Y-%m-%d %H:%M:%S")
+    end_timestamp_datetime = datetime.strptime(end_timestamp, "%Y-%m-%d %H:%M:%S")
     
-    readings = session.query(Trade).filter(Trade.createdAt >= timestamp_datetime)
+    readings = session.query(Trade).filter(and_(Trade.createdAt >= start_timestamp_datetime, Trade.createdAt < end_timestamp_datetime))
 
     result_list = [reading.to_dict() for reading in readings]
 
     session.close()
 
-    logger.info("Query for Trade readings after %s returns %d results" % (timestamp, len(result_list)))
+    logger.info("Query for Trade readings after %s returns %d results" % (start_timestamp, len(result_list)))
 
     success_message = {
         'message': 'trade stats',

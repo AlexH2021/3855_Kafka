@@ -42,7 +42,7 @@ def get_stats():
     return success_message
 
 def sent_acc_get_request():
-  url = ACC_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
+  url = ACC_STATS_URL + '?start_timestamp=' + str(datetime.now().replace(microsecond=0)) + '?end_timestamp=' + str(datetime.now().replace(microsecond=0))
   # url = ACC_STATS_URL + "?timestamp=2012-10-10 12:12:12"
   response = requests.get(url)
   
@@ -56,7 +56,7 @@ def sent_acc_get_request():
   return response.status_code, response.json()['content']
 
 def sent_trade_get_request():
-  url = TRADE_STATS_URL + '?timestamp=' + str((datetime.now()-timedelta(0,5)).replace(microsecond=0))
+  url = TRADE_STATS_URL + '?start_timestamp=' + str(datetime.now().replace(microsecond=0)) + '?end_timestamp=' + str(datetime.now().replace(microsecond=0))
   # url = TRADE_STATS_URL + "?timestamp=2012-10-10 12:12:12"
   response = requests.get(url) 
   

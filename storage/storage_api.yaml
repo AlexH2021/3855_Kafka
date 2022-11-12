@@ -49,9 +49,16 @@ paths:
         - devices
       summary: gets trade data readings
       operationId: app.get_trade_stats
-      description: Get trade data from STORAGE after a timestamp
+      description: Get trade data from STORAGE after a start_timestamp and end_timestamp
       parameters:
-        - name: timestamp
+        - name: start_timestamp
+          in: query
+          description: Limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+            example: '2022-10-2T14:22:22.001Z'
+        - name: end_timestamp
           in: query
           description: Limits the number of items on a page
           schema:
