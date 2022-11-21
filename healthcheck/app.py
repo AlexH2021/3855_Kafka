@@ -39,7 +39,8 @@ def retrieved_health_status(serviceObject):
 
 def write_to_json(new_data, filename):
   filename = app_config['datastore']['filename']
-  filename.touch(exist_ok=True)
+  fle = Path(filename)
+  fle.touch(exist_ok=True)
 
   with open(filename, 'r+') as f:
     file_data = json.load(f)
