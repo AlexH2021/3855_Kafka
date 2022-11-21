@@ -124,12 +124,7 @@ def process_messages():
   hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   client = KafkaClient(hosts=hostname)
   topic = client.topics[str.encode(app_config['events']["topic"])]
-  
   consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
-  try:
-    consumer.consume()
-  except (SocketDisconnectedError) as e:
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
     # use either the above method or the following:
     # consumer.stop()
     # consumer.start()
