@@ -10,5 +10,4 @@ engine = create_engine(url, echo=True, future=True)
 connection = engine.connect()
 metadata = MetaData(engine)
 
-
 Stats.metadata.create_all(engine)
