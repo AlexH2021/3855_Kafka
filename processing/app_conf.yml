@@ -5,5 +5,5 @@ eventstore:
   trade_stats_url: http://127.0.0.1:8090/trade_stats
 scheduler:
   period_sec: 5
-  start_time: '2022-11-17 14:58:41'
+  start_time: '2022-11-20 16:35:54'
 version: 1

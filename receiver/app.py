@@ -55,6 +55,25 @@ def post_trade(body):
 
     return msg
 
+def retry_kafka_connect():
+  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  current_try = 0
+  while current_try < 5:
+    try:
+      client = KafkaClient(hosts=hostname)
+      topic = client.topics[str.encode(cfg.events["topic"])]
+      consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=True, auto_offset_reset=OffsetType.LATEST, consumer_timeout_ms=100)
+      break
+    except Exception as e:
+      logger.error("Error connecting to kafka %s" % e)
+      current_retry += 1
+
+  if current_retry == 5:
+      logger.error("Failed to connect to kafka")
+      exit(1)
+  else:
+      logger.info("Connected to kafka !!!")
+
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('receiver_api.yaml',strict_validation=True,validate_responses=True)
 

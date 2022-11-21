@@ -91,7 +91,14 @@ paths:
       operationId: app.get_acc_stats
       description: Get account data from STORAGE after a timestamp
       parameters:
-        - name: timestamp
+        - name: start_timestamp
+          in: query
+          description: Limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+            example: '2022-10-2T14:22:22.001Z'
+        - name: end_timestamp
           in: query
           description: Limits the number of items on a page
           schema:
