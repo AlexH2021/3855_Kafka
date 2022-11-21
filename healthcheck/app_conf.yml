@@ -1,5 +1,8 @@
 version: 1
 
+datastore:
+  filename: /data/health_data.json
+
 services:
   receiver: http://127.0.0.1:8080/health
   storage:  http://127.0.0.1:8090/health

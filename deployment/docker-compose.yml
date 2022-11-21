@@ -132,4 +132,4 @@ services:
     volumes:
       - /home/azureuser/config/health:/config
       - /home/azureuser/logs:/logs
-    
+      - ./health_data:/data

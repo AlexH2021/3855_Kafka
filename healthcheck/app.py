@@ -2,6 +2,7 @@ import yaml, os, logging.config, json, connexion, requests
 from flask_cors import CORS
 from multiprocessing import Pool
 from datetime import datetime
+from pathlib import Path
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
   print("In Test Environment")
@@ -36,8 +37,11 @@ def retrieved_health_status(serviceObject):
   except requests.exceptions.RequestException as e:
     return {serviceObject: "Not active"}
 
-def write_to_json(new_data, filename='health_data.json'):
-  with open('health_data.json', 'r+') as f:
+def write_to_json(new_data, filename):
+  filename = app_config['datastore']['filename']
+  filename.touch(exist_ok=True)
+
+  with open(filename, 'r+') as f:
     file_data = json.load(f)
     file_data.append(new_data)
     f.seek(0)
