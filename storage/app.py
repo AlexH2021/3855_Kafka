@@ -149,9 +149,9 @@ def retry_kafka_connect():
       break
     except Exception as e:
       logger.error("Error connecting to kafka %s" % e)
-      current_retry += 1
+      current_try += 1
 
-  if current_retry == 5:
+  if current_try == 5:
       logger.error("Failed to connect to kafka")
       exit(1)
   else:
