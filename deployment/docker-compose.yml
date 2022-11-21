@@ -119,3 +119,17 @@ services:
     depends_on:
       - audit
       - processing
+
+  health-check:
+    container_name: health-check
+    build: ../healthcheck
+    image: health-check:latest
+    ports:
+      - "8120:8120"
+    restart: unless-stopped
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/azureuser/config/health:/config
+      - /home/azureuser/logs:/logs
+    

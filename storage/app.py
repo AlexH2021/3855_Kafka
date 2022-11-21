@@ -166,6 +166,9 @@ def retry_kafka_connect():
   else:
       logger.info("Connected to kafka !!!")
 
+def get_health():
+  return {"status": "active"}, 200
+  
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('storage_api.yaml',strict_validation=True,validate_responses=True)
 

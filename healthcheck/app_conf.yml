@@ -1,0 +1,7 @@
+version: 1
+
+services:
+  receiver: http://127.0.0.1:8080/health
+  storage:  http://127.0.0.1:8090/health
+  processing:  http://127.0.0.1:8100/health
+  audit:  http://127.0.0.1:8110/health

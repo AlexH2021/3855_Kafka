@@ -5,6 +5,14 @@ info:
   contact:
     email: honguttdc+swaggerhub@gmail.com
 paths:
+  /health:
+    get:
+      summary: gets health from audit app
+      operationId: app.get_health
+      description: always returns 200
+      responses:
+        '200':
+          description: All checkers were in success
   /trade:
     get:
       summary: gets trade data reading from history

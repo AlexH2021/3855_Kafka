@@ -73,6 +73,9 @@ def get_trade_reading(index):
   
   return { "message": "Not Found"}, 404
 
+def get_health():
+  return {"status": "active"}, 200
+
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('audit_api.yaml',strict_validation=True,validate_responses=True)
 CORS(app.app)

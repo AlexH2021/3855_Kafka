@@ -1,0 +1,52 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: Health Check microservices API
+  contact:
+    email: honguttdc+swaggerhub@gmail.com
+paths:
+  /healthcheck:
+    get:
+      summary: perform health check for all services
+      operationId: app.health_check
+      description: Perform health check for storage, receiver, processing and audit 
+      responses: 
+        200: 
+          description: Successfully return health check data
+          content:
+            application/json:
+              schema: 
+                type: object
+                items:
+                  $ref: '#/components/schemas/healthCheckSuccessful'
+        500:
+          description: "invalid request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    healthCheckSuccessful:
+      required:
+        - receiverStats
+        - storageStats
+        - processingStats
+        - auditStats
+      properties:
+        receiverStats:
+          type: string
+          example: Running
+        storageStats:
+          type: string
+          example: Down
+        processingStats:
+          type: string
+          example: Running
+        auditStats:
+          type: string
+          example: Down

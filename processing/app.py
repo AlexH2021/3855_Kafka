@@ -181,6 +181,9 @@ def init_scheduler():
   sched.add_job(populate_stats, 'interval', seconds=app_config['scheduler']['period_sec'])
   sched.start()
 
+def get_health():
+  return {"status": "active"}, 200
+
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True)
 CORS(app.app)

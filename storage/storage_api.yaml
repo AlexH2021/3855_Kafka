@@ -11,6 +11,14 @@ tags:
   - name: customer
     description: trading stock and manage portfolio
 paths:
+  /health:
+    get:
+      summary: gets health from audit app
+      operationId: app.get_health
+      description: always returns 200
+      responses:
+        '200':
+          description: All checkers were in success
   /account:
     post:
       tags:
