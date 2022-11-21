@@ -8,8 +8,26 @@ from flask_cors import CORS, cross_origin
 
 from stats import Stats
 
-with open('app_conf.yml', 'r') as f:
+import os
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+  print("In Test Environment")
+  app_conf_file = "/config/app_conf.py"
+  log_conf_file = "/config/log_conf.yml"
+else:
+  print("In Dev Environment")
+  app_conf_file = "app_conf.py"
+  log_conf_file = "log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
   app_config = yaml.safe_load(f.read())
+# External Logging Configuration
+with open(log_conf_file, 'r') as f:
+  log_config = yaml.safe_load(f.read())
+  logging.config.dictConfig(log_config)
+
+logger = logging.getLogger('basicLogger')
+logger.info("App Conf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
 
 ACC_STATS_URL = app_config['eventstore']['acc_stats_url']
 TRADE_STATS_URL = app_config['eventstore']['trade_stats_url']
@@ -18,12 +36,6 @@ SQLITE_URL = f"sqlite:///{app_config['datastore']['filename']}"
 DB_ENGINE = create_engine(SQLITE_URL)
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
-
-with open('log_conf.yml', 'r') as f:
-  log_config = yaml.safe_load(f.read())
-  logging.config.dictConfig(log_config)
-
-logger = logging.getLogger('basicLogger')
 
 def get_stats():
     session = DB_SESSION()

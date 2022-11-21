@@ -1,5 +1,5 @@
 from datetime import datetime
-import connexion, app_conf as cfg, logging.config, yaml, json
+import connexion, logging.config, yaml, json
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from base import Base
@@ -10,18 +10,32 @@ from pykafka.common import OffsetType
 from threading import Thread
 from pykafka.exceptions import SocketDisconnectedError, LeaderNotAvailable
 
-# read log config yml
-with open('log_conf.yml', 'r') as f:
-    log_config = yaml.safe_load(f.read())
-    logging.config.dictConfig(log_config)
+import os
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+  print("In Test Environment")
+  app_conf_file = "/config/app_conf.py"
+  log_conf_file = "/config/log_conf.yml"
+else:
+  print("In Dev Environment")
+  app_conf_file = "app_conf.py"
+  log_conf_file = "log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
+  app_config = yaml.safe_load(f.read())
+# External Logging Configuration
+with open(log_conf_file, 'r') as f:
+  log_config = yaml.safe_load(f.read())
+  logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
+logger.info("App Conf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
 
-db_con = f"mysql+pymysql://{cfg.datastore['user']}:{cfg.datastore['password']}@{cfg.datastore['hostname']}:{cfg.datastore['port']}/{cfg.datastore['db']}"
+db_con = f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}"
 DB_ENGINE = create_engine(db_con)
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
-logger.info(f"Connecting to DB. Hostname: {cfg.datastore['hostname']}, Port: {cfg.datastore['port']}")
+logger.info(f"Connecting to DB. Hostname: {app_config['datastore']['hostname']}, Port: {app_config['datastore']['port']}")
 
 def post_acc(body):
   session = DB_SESSION()
@@ -107,9 +121,9 @@ def get_trade_stats(start_timestamp, end_timestamp):
   return success_message
 
 def process_messages():
-  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   client = KafkaClient(hosts=hostname)
-  topic = client.topics[str.encode(cfg.events["topic"])]
+  topic = client.topics[str.encode(app_config['events']["topic"])]
   
   consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=False, auto_offset_reset=OffsetType.LATEST)
   try:
@@ -135,12 +149,12 @@ def process_messages():
     consumer.commit_offsets()
 
 def retry_kafka_connect():
-  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   current_try = 0
   while current_try < 5:
     try:
       client = KafkaClient(hosts=hostname)
-      topic = client.topics[str.encode(cfg.events["topic"])]
+      topic = client.topics[str.encode(app_config['events']["topic"])]
       consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=True, auto_offset_reset=OffsetType.LATEST, consumer_timeout_ms=100)
       try:
         consumer.consume()

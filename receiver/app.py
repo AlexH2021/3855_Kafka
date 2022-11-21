@@ -1,14 +1,27 @@
 from datetime import datetime
 import logging.config, connexion, yaml, uuid, json
-import app_conf as cfg
 from pykafka import KafkaClient
 
-# read log config yml
-with open('log_conf.yml', 'r') as f:
-    log_config = yaml.safe_load(f.read())
-    logging.config.dictConfig(log_config)
+import os
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+  print("In Test Environment")
+  app_conf_file = "/config/app_conf.py"
+  log_conf_file = "/config/log_conf.yml"
+else:
+  print("In Dev Environment")
+  app_conf_file = "app_conf.py"
+  log_conf_file = "log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
+  app_config = yaml.safe_load(f.read())
+# External Logging Configuration
+with open(log_conf_file, 'r') as f:
+  log_config = yaml.safe_load(f.read())
+  logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
+logger.info("App Conf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
 
 def post_acc(body):
     trace_id = str(uuid.uuid4())
@@ -16,9 +29,9 @@ def post_acc(body):
     body['createdAt'] = str(datetime.now().replace(microsecond=0))
 
     print(body)
-    kafka_hosts = f"{cfg.events['hostname']}:{cfg.events['port']}"
+    kafka_hosts = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
     client = KafkaClient(hosts=kafka_hosts)
-    topic = client.topics[str.encode(cfg.events['topic'])]
+    topic = client.topics[str.encode(app_config['events']['topic'])]
     producer = topic.get_sync_producer()
     msg = { 
         "type": "requests_post_acc",
@@ -38,9 +51,9 @@ def post_trade(body):
     body['traceID'] = trace_id
     body['createdAt'] = str(datetime.now().replace(microsecond=0))
    
-    kafka_hosts = f"{cfg.events['hostname']}:{cfg.events['port']}"
+    kafka_hosts = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
     client = KafkaClient(hosts=kafka_hosts)
-    topic = client.topics[str.encode(cfg.events['topic'])]
+    topic = client.topics[str.encode(app_config['events']['topic'])]
     producer = topic.get_sync_producer()
     msg = { 
         "type": "requests_post_trade",
@@ -56,12 +69,12 @@ def post_trade(body):
     return msg
 
 def retry_kafka_connect():
-  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   current_try = 0
   while current_try < 5:
     try:
       client = KafkaClient(hosts=hostname)
-      topic = client.topics[str.encode(cfg.events["topic"])]
+      topic = client.topics[str.encode(app_config['events']["topic"])]
       consumer = topic.get_simple_consumer(consumer_group=b'event_group', reset_offset_on_start=True, auto_offset_reset=OffsetType.LATEST, consumer_timeout_ms=100)
       break
     except Exception as e:

@@ -1,19 +1,34 @@
-import connexion, yaml, logging.config, app_conf as cfg, json
+import connexion, yaml, logging.config, json
 from pykafka import KafkaClient
 from flask_cors import CORS, cross_origin
 
-# read log config yml
-with open('log_conf.yml', 'r') as f:
-    log_config = yaml.safe_load(f.read())
-    logging.config.dictConfig(log_config)
+import os
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+  print("In Test Environment")
+  app_conf_file = "/config/app_conf.py"
+  log_conf_file = "/config/log_conf.yml"
+else:
+  print("In Dev Environment")
+  app_conf_file = "app_conf.py"
+  log_conf_file = "log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
+  app_config = yaml.safe_load(f.read())
+# External Logging Configuration
+with open(log_conf_file, 'r') as f:
+  log_config = yaml.safe_load(f.read())
+  logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
+logger.info("App Conf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
+
 
 def get_account_reading(index):
   """ Get Account Reading in History """
-  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   client = KafkaClient(hosts=hostname)
-  topic = client.topics[str.encode(cfg.events["topic"])]
+  topic = client.topics[str.encode(app_config['events']["topic"])]
   consumer = topic.get_simple_consumer(reset_offset_on_start=True, consumer_timeout_ms=1000)
   logger.info("Retrieving Account at index %d" % index)
   
@@ -35,9 +50,9 @@ def get_account_reading(index):
   return { "message": "Not Found"}, 404
 
 def get_trade_reading(index):
-  hostname = "%s:%d" % (cfg.events["hostname"], cfg.events["port"])
+  hostname = "%s:%d" % (app_config['events']["hostname"], app_config['events']["port"])
   client = KafkaClient(hosts=hostname)
-  topic = client.topics[str.encode(cfg.events["topic"])]
+  topic = client.topics[str.encode(app_config['events']["topic"])]
   consumer = topic.get_simple_consumer(reset_offset_on_start=True, consumer_timeout_ms=1000)
   logger.info("Retrieving Trade at index %d" % index)
 
