@@ -28,21 +28,23 @@ logger = logging.getLogger('basicLogger')
 def get_stats():
     session = DB_SESSION()
     readings = session.query(Stats).order_by(Stats.created_at.desc()).all()
-    
-    result_list = [reading.as_dict() for reading in readings]
-
     session.close()
 
-    success_message = {
-        'message': 'account stats',
-        'status': 200,
-        'content': result_list
-    }
+    result_list = [reading.as_dict() for reading in readings]
+    num_account = 0
+    num_trade = 0 
+    total_cash = 0 
+    total_value = 0 
+    for row in result_list:
+      num_account += row['num_account']
+      num_trade += row['num_trade']
+      total_cash += row['total_cash']
+      total_value += row['total_value']
 
-    return success_message
+    return { "num_account": num_account, "num_trade": num_trade, "total_cash": total_cash, "total_value": total_value }
 
-def sent_acc_get_request():
-  url = ACC_STATS_URL + '?start_timestamp=' + str(datetime.now().replace(microsecond=0)) + '?end_timestamp=' + str(datetime.now().replace(microsecond=0))
+def sent_acc_get_request(start_time, current_time):
+  url = ACC_STATS_URL + '?start_timestamp=' + start_time + '&end_timestamp=' + current_time
   # url = ACC_STATS_URL + "?timestamp=2012-10-10 12:12:12"
   response = requests.get(url)
   
@@ -55,8 +57,8 @@ def sent_acc_get_request():
 
   return response.status_code, response.json()['content']
 
-def sent_trade_get_request():
-  url = TRADE_STATS_URL + '?start_timestamp=' + str(datetime.now().replace(microsecond=0)) + '?end_timestamp=' + str(datetime.now().replace(microsecond=0))
+def sent_trade_get_request(start_time, current_time):
+  url = TRADE_STATS_URL + '?start_timestamp=' + start_time + '&end_timestamp=' + current_time
   # url = TRADE_STATS_URL + "?timestamp=2012-10-10 12:12:12"
   response = requests.get(url) 
   
@@ -70,8 +72,11 @@ def sent_trade_get_request():
   return response.status_code, response.json()['content']
 
 def cal_stats():
-  status1, acc_data = sent_acc_get_request()
-  status2, trade_data = sent_trade_get_request()
+  start_time =  app_config['scheduler']['start_time']
+  current_time = str(datetime.now().replace(microsecond=0))
+
+  status1, acc_data = sent_acc_get_request(start_time, current_time)
+  status2, trade_data = sent_trade_get_request(start_time, current_time)
   traceID = str(uuid.uuid4())
 
   processed_data = {
@@ -115,6 +120,14 @@ def cal_stats():
     #log debug
     logger.debug('TraceID for account and trade stats: %s',traceID)
 
+  print(merge_data)
+
+
+  app_config['scheduler']['start_time'] = current_time
+  with open('app_conf.yml', 'w') as f:
+    yaml.dump(app_config, f)
+  logger.debug(f'INFO: updated start time: {current_time}')
+
   return processed_data, have_data
 
 def save_to_sqlite(body):
@@ -142,11 +155,13 @@ def populate_stats():
 
   calculated_data, have_data = cal_stats()
   
+  # print(calculated_data, have_data)
+
   if have_data == True:
     save_to_sqlite(calculated_data)
   else:
     logger.info("INFO: No data to insert to database")
-  
+
   logger.info(f'INFO: finish populating stats')
     
 def init_scheduler():
