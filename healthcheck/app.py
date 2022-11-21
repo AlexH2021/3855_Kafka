@@ -37,7 +37,7 @@ def retrieved_health_status(serviceObject):
   except requests.exceptions.RequestException as e:
     return {serviceObject: "Not active"}
 
-def write_to_json(new_data, filename):
+def write_to_json(new_data):
   filename = app_config['datastore']['filename']
   fle = Path(filename)
   fle.touch(exist_ok=True)
