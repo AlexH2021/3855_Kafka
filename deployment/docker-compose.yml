@@ -60,6 +60,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/azureuser/config/audit_log:/config
+      - /home/azureuser/logs:/logs
 
   processing:
     container_name: processing
@@ -74,7 +75,9 @@ services:
     environment:
       - TARGET_ENV=test
     volumes:
-      - /home/azureuser/config/processing:/processing
+      - /home/azureuser/config/processing:/config
+      - /home/azureuser/logs:/logs
+      - ./processing-db:/data
 
   receiver:
     container_name: receiver
@@ -88,7 +91,8 @@ services:
     environment:
       - TARGET_ENV=test
     volumes:
-      - /home/azureuser/config/receiver:/receiver
+      - /home/azureuser/config/receiver:/config
+      - /home/azureuser/logs:/logs
     
   storage:
     container_name: storage
@@ -102,7 +106,8 @@ services:
     environment:
       - TARGET_ENV=test
     volumes:
-      - /home/azureuser/config/storage:/storage
+      - /home/azureuser/config/storage:/config
+      - /home/azureuser/logs:/logs
 
   dashboard:
     container_name: dashboard
