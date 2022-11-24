@@ -3,6 +3,7 @@ from flask_cors import CORS
 from multiprocessing import Pool
 from datetime import datetime
 from pathlib import Path
+from json.decoder import JSONDecodeError
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
   print("In Test Environment")
@@ -43,17 +44,13 @@ def write_to_json(new_data):
   fle = Path(filename)
   fle.touch(exist_ok=True)
 
-  with open(filename) as f:
-    file_data = json.load(f)
-  
-  print(file_data)
-  print("--------")
-  print(new_data)
-  file_data.update(new_data)
-
-  with open(filename, 'w') as f:
-    json.dump(file_data, f, indent=4)
-  
+  with open(filename, 'a+') as infile, open(filename, 'w') as outfile:
+    try:
+        old_data = json.load(infile)
+        data = old_data + new_data
+        json.dump(data, outfile)
+    except JSONDecodeError:
+        pass
 
 def health_check():
   current_time = {'Last Update': str(datetime.now().replace(microsecond=0))}
@@ -68,6 +65,8 @@ def health_check():
     data.update(i)
   
   data.update(current_time)
+  print("----------")
+  print(data)
   write_to_json(data)
 
   logger.info("Health check completed: %", data)
