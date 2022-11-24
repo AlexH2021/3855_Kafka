@@ -69,7 +69,7 @@ def health_check():
 
   logger.info("Health check completed: %s" % data)
 
-  return json.dumps(data), 200
+  return data, 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('healthcheck_api.yaml', strict_validation=True, validate_responses=True)
