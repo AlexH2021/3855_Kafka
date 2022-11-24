@@ -33,10 +33,10 @@ components:
   schemas:
     healthCheckSuccessful:
       required:
-        - receiverStats
-        - storageStats
-        - processingStats
-        - auditStats
+        - receiver
+        - storage
+        - processing
+        - audit
       properties:
         receiverStats:
           type: string
