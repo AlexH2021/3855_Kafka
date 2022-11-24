@@ -33,7 +33,7 @@ def retrieved_health_status(serviceObject):
   print(url)
   try:
     request = requests.get(url, timeout=5)
-    print(request)
+    print(request.status_code, request.json())
     print("----------------------------")
     if request.status_code == 200:
       return {serviceObject: "Active"}
