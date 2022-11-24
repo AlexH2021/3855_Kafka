@@ -53,7 +53,7 @@ def write_to_json(new_data):
         pass
 
 def health_check():
-  current_time = {'Last Update': str(datetime.now().replace(microsecond=0))}
+  current_time = {'Last Update': str(datetime.utcnow().replace(microsecond=0))}
   data = {}
   
   with Pool() as p:
@@ -67,7 +67,7 @@ def health_check():
   data.update(current_time)
   write_to_json(data)
 
-  logger.info("Health check completed: %", data)
+  logger.info("Health check completed: %s" % data)
 
   return json.dumps(data), 200
 
