@@ -48,7 +48,6 @@ services:
       - ./my-db:/var/lib/mysql
 
   audit_log:
-    container_name: audit
     build: ../audit/
     image: audit:latest
     ports:
@@ -65,7 +64,6 @@ services:
       - /home/azureuser/logs:/logs
 
   processing:
-    container_name: processing
     build: ../processing/
     image: processing:latest
     ports:
@@ -83,7 +81,6 @@ services:
       - ./processing-db:/data
 
   receiver:
-    container_name: receiver
     build: ../receiver/
     image: receiver:latest
     ports:
@@ -100,7 +97,6 @@ services:
       - /home/azureuser/logs:/logs
     
   storage:
-    container_name: storage
     build: ../storage/
     image: storage:latest
     ports:
@@ -117,7 +113,6 @@ services:
       - /home/azureuser/logs:/logs
 
   dashboard:
-    container_name: dashboard
     build: ../dashboard-ui
     image: dashboard:latest
     ports:
@@ -130,7 +125,6 @@ services:
       - processing
 
   health-check:
-    container_name: health-check
     build: ../healthcheck
     image: health-check:latest
     ports:
