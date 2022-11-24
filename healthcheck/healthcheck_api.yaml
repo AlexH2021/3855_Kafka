@@ -38,15 +38,15 @@ components:
         - processing
         - audit
       properties:
-        receiverStats:
+        receiver:
           type: string
           example: Running
-        storageStats:
+        storage:
           type: string
           example: Down
-        processingStats:
+        processing:
           type: string
           example: Running
-        auditStats:
+        audit:
           type: string
           example: Down
