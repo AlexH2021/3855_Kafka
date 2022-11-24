@@ -42,11 +42,16 @@ def write_to_json(new_data):
   fle = Path(filename)
   fle.touch(exist_ok=True)
 
+  print(fle)
+  print("-----------")
+  print(new_data)
+
   with open(filename, 'r+') as f:
     file_data = json.load(f)
     file_data.append(new_data)
     f.seek(0)
     json.dump(file_data, f, indent=4)
+  
 
 def health_check():
   current_time = {'Last Update': str(datetime.now().replace(microsecond=0))}
