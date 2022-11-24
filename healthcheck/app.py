@@ -62,6 +62,8 @@ def health_check():
     data.update(i)
   
   data.update(current_time)
+  print("----------")
+  print(data)
   write_to_json(data)
 
   logger.info("Health check completed: %", data)
