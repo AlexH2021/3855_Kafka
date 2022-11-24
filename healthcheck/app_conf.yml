@@ -4,7 +4,7 @@ datastore:
   filename: /data/health_data.json
 
 services:
-  receiver: http://127.0.0.1:8080/health
-  storage:  http://127.0.0.1:8090/health
-  processing:  http://127.0.0.1:8100/health
-  audit:  http://127.0.0.1:8110/health
+  receiver: http://4.227.145.197:8080/health
+  storage:  http://4.227.145.197:8090/health
+  processing:  http://4.227.145.197:8100/health
+  audit:  http://4.227.145.197:8110/health

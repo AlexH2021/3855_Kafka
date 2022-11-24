@@ -43,7 +43,7 @@ def write_to_json(new_data):
   fle.touch(exist_ok=True)
 
   with open(filename, 'r+') as f:
-    file_data = json.load(f)
+    file_data = json.loads(f)
     file_data.append(new_data)
     f.seek(0)
     json.dump(file_data, f, indent=4)
