@@ -29,17 +29,16 @@ SERVICEOBJECT = app_config['services']
 
 def retrieved_health_status(serviceObject):
   url = app_config['services'][serviceObject]
-  print("----------------------------")
-  print(url)
   try:
     request = requests.get(url, timeout=5)
-    print(request.status_code, request.json())
+    print("banana")
     print("----------------------------")
     if request.status_code == 200:
       return {serviceObject: "Active"}
     else:
       return {serviceObject: "Not active"}
   except requests.exceptions.RequestException as e:
+    print("exception")
     return {serviceObject: "Not active"}
 
 def write_to_json(new_data):
