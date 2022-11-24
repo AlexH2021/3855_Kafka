@@ -42,10 +42,6 @@ def write_to_json(new_data):
   fle = Path(filename)
   fle.touch(exist_ok=True)
 
-  print(fle)
-  print("-----------")
-  print(new_data)
-
   with open(filename, 'r+') as f:
     file_data = json.load(f)
     file_data.append(new_data)
@@ -70,7 +66,7 @@ def health_check():
 
   logger.info("Health check completed: %", data)
 
-  return data, 200
+  return json.dump(data), 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('healthcheck_api.yaml', strict_validation=True, validate_responses=True)
