@@ -46,8 +46,8 @@ def write_to_json(new_data):
 
   with open(filename, 'a+') as infile, open(filename, 'w') as outfile:
     try:
-        old_data = json.load(infile)
-        data = old_data + new_data
+        data = json.load(infile)
+        data.update(new_data)
         json.dump(data, outfile)
     except JSONDecodeError:
         pass
