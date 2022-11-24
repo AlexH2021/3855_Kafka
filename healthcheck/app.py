@@ -43,7 +43,7 @@ def write_to_json(new_data):
   fle = Path(filename)
   fle.touch(exist_ok=True)
 
-  with open(filename, 'r+') as f:
+  with open(filename, 'r+', encoding='utf-8') as f:
     file_data = json.load(f)
     file_data.append(new_data)
     f.seek(0)
