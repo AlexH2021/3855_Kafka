@@ -185,7 +185,7 @@ def get_health():
   return {"status": "active"}, 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True)
+app.add_api('processing_api.yaml',strict_validation=True,validate_responses=True,base_path="/processing")
 CORS(app.app)
 app.app.config['CORS_HEADERS'] = 'Content-Type'
 

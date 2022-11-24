@@ -47,7 +47,7 @@ services:
     volumes:
       - ./my-db:/var/lib/mysql
 
-  audit:
+  audit_log:
     container_name: audit
     build: ../audit/
     image: audit:latest

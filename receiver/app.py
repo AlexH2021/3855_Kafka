@@ -91,7 +91,7 @@ def get_health():
   return {"status": "active"}, 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api('receiver_api.yaml',strict_validation=True,validate_responses=True)
+app.add_api('receiver_api.yaml',strict_validation=True,validate_responses=True,base_path="/receiver")
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)

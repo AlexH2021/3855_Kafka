@@ -170,7 +170,7 @@ def get_health():
   return {"status": "active"}, 200
   
 app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api('storage_api.yaml',strict_validation=True,validate_responses=True)
+app.add_api('storage_api.yaml',strict_validation=True,validate_responses=True,base_path="/storage")
 
 if __name__ == "__main__":
   retry_kafka_connect()
