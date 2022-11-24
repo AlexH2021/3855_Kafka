@@ -29,9 +29,12 @@ SERVICEOBJECT = app_config['services']
 
 def retrieved_health_status(serviceObject):
   url = app_config['services'][serviceObject]
-
+  print("----------------------------")
+  print(url)
   try:
     request = requests.get(url, timeout=5)
+    print(request)
+    print("----------------------------")
     if request.status_code == 200:
       return {serviceObject: "Active"}
     else:
