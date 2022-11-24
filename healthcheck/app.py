@@ -43,10 +43,15 @@ def write_to_json(new_data):
   fle = Path(filename)
   fle.touch(exist_ok=True)
 
-  with open(filename, 'r+', encoding='utf-8') as f:
+  with open(filename) as f:
     file_data = json.load(f)
-    file_data.append(new_data)
-    f.seek(0)
+  
+  print(file_data)
+  print("--------")
+  print(new_data)
+  file_data.update(new_data)
+
+  with open(filename, 'w') as f:
     json.dump(file_data, f, indent=4)
   
 
@@ -63,8 +68,6 @@ def health_check():
     data.update(i)
   
   data.update(current_time)
-  print("----------")
-  print(data)
   write_to_json(data)
 
   logger.info("Health check completed: %", data)
